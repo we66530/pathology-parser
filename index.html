@@ -29,7 +29,7 @@
 <body>
   <div class="wrap">
     <h1 class="title">Breast Pathology → Structured Summary (Local)</h1>
-    <p class="sub">Paste a free‑text pathology report, click <strong>Parse</strong>, then copy the one‑line summary. Everything runs in your browser—no uploads.</p>
+    <p class="sub">Paste a free-text pathology report, click <strong>Parse</strong>, then copy the one-line summary. Everything runs in your browser—no uploads.</p>
 
     <div class="grid">
       <div class="card">
@@ -40,7 +40,7 @@
         <textarea id="input" rows="16" placeholder="Paste the report text here..."></textarea>
         <div class="row" style="margin-top:12px">
           <button class="btn" id="parseBtn">Parse</button>
-          <label class="hint">Ki‑67 threshold for Luminal A/B:&nbsp;
+          <label class="hint">Ki-67 threshold for Luminal A/B:&nbsp;
             <input type="number" id="kiThresh" value="20" min="0" max="100" style="width:80px"> %
           </label>
           <span id="err" class="hint" style="color:#dc2626"></span>
@@ -49,14 +49,14 @@
 
       <div class="card">
         <div class="row" style="justify-content:space-between;margin-bottom:8px">
-          <strong>One‑line summary</strong>
+          <strong>One-line summary</strong>
           <div class="row">
             <button class="btn-ghost" id="copyBtn" disabled>Copy</button>
             <span id="copiedMsg" class="copied" style="display:none">Copied!</span>
           </div>
         </div>
         <textarea id="summary" rows="8" readonly style="background:#fafafa"></textarea>
-        <p class="hint" style="margin-top:8px">Example: “Right breast invasive carcinoma of no special type, grade 1, ER: positive (90%), PR: positive (95%), HER2: negative (score 0), luminal type A, TxNxMx, Stage —”.</p>
+        <p class="hint" style="margin-top:8px">Example: “Right breast invasive carcinoma of no special type, grade 1, ER: positive (90%), PR: positive (95%), HER2: negative (score 0), Ki-67: 10%, luminal type A, TxNxMx, Stage —”.</p>
       </div>
     </div>
 
@@ -65,7 +65,7 @@
       <div style="overflow-x:auto">
         <table class="table" id="parsedTable"></table>
       </div>
-      <p class="hint" style="margin-top:8px"><strong>Notes:</strong> Rule‑based demo; verify results. Subtype heuristic: HR+ & HER2– with Ki‑67 &lt; threshold → luminal type A; HR+ & HER2– with Ki‑67 ≥ threshold → luminal type B (HER2–); HR+ & HER2+ → luminal type B (HER2+); HR– & HER2+ → HER2‑enriched; HR– & HER2– → triple‑negative.</p>
+      <p class="hint" style="margin-top:8px"><strong>Notes:</strong> Rule-based demo; verify results. Subtype heuristic: HR+ & HER2– with Ki-67 &lt; threshold → luminal type A; HR+ & HER2– with Ki-67 ≥ threshold → luminal type B (HER2–); HR+ & HER2+ → luminal type B (HER2+); HR– & HER2+ → HER2-enriched; HR– & HER2– → triple-negative.</p>
     </div>
   </div>
 
@@ -163,12 +163,14 @@
       const gradeStr = p.grade ? `grade ${p.grade}` : 'grade ?';
       const sizeStr = p.tumorSizeMM!=null ? `, invasive size ${p.tumorSizeMM} mm` : '';
 
-      const erStr = p.er ? `ER (estrogen receptor): ${p.er.status||'?'}${p.er.percent!=null?` (${p.er.percent}%)`:''}` : 'ER: ?';
-      const prStr = p.pr ? `PR (progesterone receptor): ${p.pr.status||'?'}${p.pr.percent!=null?` (${p.pr.percent}%)`:''}` : 'PR: ?';
-      const her2Str = p.her2 ? `HER2 (human epidermal growth factor receptor 2): ${p.her2.status||'?'}${p.her2.score?` (${p.her2.score})`:''}` : 'HER2: ?';
+      const erStr = p.er ? `ER: ${p.er.status||'?'}${p.er.percent!=null?` (${p.er.percent}%)`:''}` : 'ER: ?';
+      const prStr = p.pr ? `PR: ${p.pr.status||'?'}${p.pr.percent!=null?` (${p.pr.percent}%)`:''}` : 'PR: ?';
+      const her2Str = p.her2 ? `HER2: ${p.her2.status||'?'}${p.her2.score?` (${p.her2.score})`:''}` : 'HER2: ?';
+      const ki67Str = p.ki67!=null ? `Ki-67: ${p.ki67}%` : 'Ki-67: ?';
+
       const subtype = inferSubtype(p, threshold);
 
-      const line = `${sideCap} breast ${typeStr}, ${gradeStr}${sizeStr}, ${erStr}, ${prStr}, ${her2Str}, ${subtype}, TxNxMx, Stage —`;
+      const line = `${sideCap} breast ${typeStr}, ${gradeStr}${sizeStr}, ${erStr}, ${prStr}, ${her2Str}, ${ki67Str}, ${subtype}, TxNxMx, Stage —`;
       return line.replace(/\s+,/g, ',');
     }
 
@@ -186,8 +188,8 @@
         ['ER', p.er? `${p.er.status??'?'}${p.er.percent!=null?` (${p.er.percent}%)`:''}${p.er.strength?`, ${p.er.strength}`:''}` : '—'],
         ['PR', p.pr? `${p.pr.status??'?'}${p.pr.percent!=null?` (${p.pr.percent}%)`:''}${p.pr.strength?`, ${p.pr.strength}`:''}` : '—'],
         ['HER2', p.her2? `${p.her2.status??'?'}${p.her2.score?` (${p.her2.score})`:''}${p.her2.percent!=null?`, ${p.her2.percent}%`:''}` : '—'],
-        ['Ki‑67', p.ki67!=null? `${p.ki67}%` : '—'],
-        ['Subtype (rule‑based)', inferSubtype(p, threshold)],
+        ['Ki-67', p.ki67!=null? `${p.ki67}%` : '—'],
+        ['Subtype (rule-based)', inferSubtype(p, threshold)],
       ];
       const tbl = $('parsedTable');
       tbl.innerHTML = rows.map(([k,v])=>`<tr><td class="key">${k}</td><td>${v}</td></tr>`).join('');
